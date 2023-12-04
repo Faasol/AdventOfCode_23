@@ -1,16 +1,5 @@
 import re
 
-def check_copies(copies, line, num):
-    result = []
-    for number in copies:
-        if number == num:
-            result += check_line(line, num)
-    return result
-    
-def modify_list(num, copies):
-    for i in range(len(copies)):
-        copies[i] += num
-
 def win_check(win, mine):
     result = 0
     for number in mine:
@@ -18,8 +7,9 @@ def win_check(win, mine):
             result += 1
     return result
 
-def check_line(line, i):
-    result = []
+def check_line(line, i, copies):
+    
+    result = 0
     
     line = re.sub(' +', ' ', line)
     first_parse = line.split(": ")
@@ -39,24 +29,23 @@ def check_line(line, i):
     for number in parse:
         if number:  mine_numbers.append(int(number))
         
-    for j in range(1, win_check(win_numbers, mine_numbers)+1):
-        result.append(j + i)
-    
-    return result
+    result = win_check(win_numbers, mine_numbers)
+    for j in range(i+1, i + result + 1):
+        copies[j] += copies[i]
 
 def main():
     
-    copies = []
     result = 0
    
     file = open('input.txt', 'r')
     lines = file.readlines()
+    copies = [1 for x in range(len(lines))]
+    
     for i, line in enumerate(lines):
-        copies += check_line(line, i+1)
-        copies += check_copies(copies, line, i+1)
-        result += 1 + copies.count(i+1)
-        tmp = [k for k in copies if k != i+1]
-        copies = tmp    
+        check_line(line, i, copies)
+    
+    for value in copies:
+        result += value
         
     print("\n ** \t -> \t" + str(result) + "\n")
     
